@@ -1,6 +1,6 @@
 #added
 .vscode
-coffee_machine/
+coffee_machine/.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

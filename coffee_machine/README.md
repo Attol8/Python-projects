@@ -1,6 +1,6 @@
 # Coffee Machine
 
-Coffee Mahcine is an [Hyperskill](https://hyperskill.org/projects/68?goal=391) Python project that simulates the actions of a coffee machine.
+Coffee Machine is an [Hyperskill](https://hyperskill.org/projects/68?goal=391) Python project that simulates the actions of a coffee machine.
 
 ## Run the Project
 

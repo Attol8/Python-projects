@@ -24,7 +24,10 @@ class CoffeeMachine:
             }
         
     def set_new_state(self, command):
-        self.current_state = self.command_to_state[command]
+        try:
+            self.current_state = self.command_to_state[command]
+        except KeyError:
+            self.current_state = 'input_error'
 
     def receive_input(self, command):
         while True:
@@ -38,6 +41,7 @@ class CoffeeMachine:
             
             if self.current_state == 'making_coffee':
                 self.make_coffee(command)
+                if self.current_state in ['choosing_coffee'] : break
                 
             if self.current_state == 'filling':
                 self.fill(command)
@@ -50,8 +54,16 @@ class CoffeeMachine:
 
             if self.current_state == 'exiting':
                 self.active = False
+            
+            if self.current_state == 'input_error':
+                self.input_error(command)
 
             break
+    
+    def input_error(self, command):
+        print("The command you typed '{0}' has not been recognized by the coffee machine".format(command))
+        print()
+
     def check_resources(self, coffee_type):
         check =  [x - y for x, y in zip(self.all_resources, self.required_resources[self.coffee_type])]
         if min(check) >= 0: return None
@@ -62,11 +74,17 @@ class CoffeeMachine:
             if check.index(min(check)) == 3 : return 'money'
             if check.index(min(check)) == 0 : return 'disposable cups'
             
-    def make_coffee(self, coffee_type): 
+    def make_coffee(self, coffee_type):
+
         if coffee_type in ['1' , '2' , '3']: 
             self.coffee_type = int(coffee_type)
-        else: 
+        elif coffee_type == 'back' :
             self.coffee_type = str(coffee_type)
+            self.current_state == 'choosing_coffee'
+        else:
+            self.coffee_type = None
+            self.current_state = 'input_error'
+            self.current_state == 'choosing_coffee'
 
         if self.coffee_type in [1, 2, 3]:
             scarce_resource = self.check_resources(self.coffee_type) #control that there are enough resource
@@ -103,28 +121,30 @@ class CoffeeMachine:
         print('{0} of money'.format(self.money))
         print()
 
-#main program
-coffee_machine = CoffeeMachine()
-while coffee_machine.active == True:
-    coffee_machine.current_state = 'action'
-    command = str(input('Write action (buy, fill, take, remaining, exit):'))
-    coffee_machine.receive_input(command)
-
-    if coffee_machine.current_state == 'choosing_coffee':
-        print()
-        command = input('What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino:')
+def main():
+    #main program
+    coffee_machine = CoffeeMachine()
+    while coffee_machine.active == True:
+        coffee_machine.current_state = 'action'
+        command = str(input('Write action (buy, fill, take, remaining, exit):'))
         coffee_machine.receive_input(command)
 
-    if coffee_machine.current_state == 'filling':
-        print()
-        resource_fill = []
-        resource_fill.append(int(input('Write how many ml of self.water do you want to add:')))
-        resource_fill.append(int(input('Write how many ml of self.milk do you want to add:')))
-        resource_fill.append(int(input('Write how many grams of coffee self.beans do you want to add:')))
-        resource_fill.append(int(input('Write how many disposable cups of coffee do you want to add:')))
-        command = resource_fill
-        coffee_machine.receive_input(command)
+        if coffee_machine.current_state == 'choosing_coffee':
+            print()
+            command = input('What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino, back - to main menu:')
+            coffee_machine.receive_input(command)
 
-    
+        if coffee_machine.current_state == 'filling':
+            print()
+            resource_fill = []
+            resource_fill.append(int(input('Write how many ml of self.water do you want to add:')))
+            resource_fill.append(int(input('Write how many ml of self.milk do you want to add:')))
+            resource_fill.append(int(input('Write how many grams of coffee self.beans do you want to add:')))
+            resource_fill.append(int(input('Write how many disposable cups of coffee do you want to add:')))
+            command = resource_fill
+            coffee_machine.receive_input(command)
+
+if __name__ == "__main__":
+    main()
     
     

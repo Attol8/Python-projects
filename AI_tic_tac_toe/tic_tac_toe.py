@@ -2,7 +2,7 @@ import random
 class Game:
     def __init__(self):
         self.table_str = None
-        self.finished = False
+        self.active = False
         self.table_matrix = None
         self.valid_move = False
         self.state = None
@@ -49,13 +49,10 @@ class Game:
                 valid_condition_2 = x <= 2 and y >= 0
                 valid_condition_3 = x <= 2 and y >= 0
                 valid_condition_4 = self.table_matrix[x][y] == ' '
-                
                 conditions = [valid_condition_2, valid_condition_3, valid_condition_4]
-
                 if all(conditions):
                     self.valid_move = True
                     self.insert_move(x, y)
-
                 elif all(conditions[0:1]) == True and conditions[2] == False:
                     print('This cell is occupied! Choose another one!')
             
@@ -64,46 +61,33 @@ class Game:
         
     def get_symbol(self):
         self.table_str = "".join([cell for row in self.table_matrix for cell in row])
-        X_len = 0
-        O_len = 0
+        X_len, O_len = (0, 0)
         for cell in self.table_str:
-            if cell == 'X':
-                X_len += 1
-            elif cell == 'O':
-                O_len += 1
+            if cell == 'X': X_len += 1
+            elif cell == 'O': O_len += 1
 
-        if X_len == O_len:
-            return 'X'
-        else:
-            return 'O'
+        if X_len == O_len: return 'X'
+        else: return 'O'
 
     def get_state(self):
-        for row, column in zip(self.table_matrix, list(map(list, zip(*self.table_matrix)))): #the second part is equivalent to self.table_matrix.T (if it was a np array)
 
-            row_equal_X = all(cell == 'X' for cell in row)
-            column_equal_X = all(cell == 'X' for cell in column)
-            row_equal_O = all(cell == 'O' for cell in row)
-            column_equal_O = all(cell == 'O' for cell in column)
-            
-            if any([row_equal_X, column_equal_X]): self.state = 'X wins'    
-            elif any([row_equal_O, column_equal_O]): self.state = 'O wins' 
+        for i in range(0, 3):
+            #check rows
+            if self.table_matrix[i][0] == self.table_matrix[i][1] == self.table_matrix[i][2] and self.table_matrix[i][0] != ' ':
+                self.state = '{0} wins'.format(self.table_matrix[i][0])
+            #check columns
+            elif self.table_matrix[0][i] == self.table_matrix[1][i] == self.table_matrix[2][i] and self.table_matrix[0][i] != ' ':
+                self.state = '{0} wins'.format(self.table_matrix[0][i])
+            #check diagonals
+            elif self.table_matrix[0][0] == self.table_matrix[1][1] == self.table_matrix[2][2] and self.table_matrix[0][0] != ' ':
+                self.state = '{0} wins'.format(self.table_matrix[0][0])
 
-        diagonal_1 = self.table_matrix[0][2], self.table_matrix[1][1], self.table_matrix[2][0]
-        diagonal_2 = self.table_matrix[0][0], self.table_matrix[1][1], self.table_matrix[2][2]
-        diagonals = [diagonal_1, diagonal_2]
-
-        for diagonal in diagonals:
-            diagonal_equal_X = all(cell == 'X' for cell in diagonal)
-            diagonal_equal_O = all(cell == 'O' for cell in diagonal)
-            if diagonal_equal_X : self.state = 'X wins' 
-            elif diagonal_equal_O : self.state = 'O wins'
-
-        if self.state == None:
-            for row, column in zip(self.table_matrix, list(map(list, zip(*self.table_matrix)))):
-                if ' ' in row: self.state = "Game not finished"
-                if ' ' in column: self.state = "Game not finished"
-            if self.state == None:
-                self.state = 'Draw'
+            elif self.table_matrix[0][2] == self.table_matrix[1][1] == self.table_matrix[2][0] and self.table_matrix[0][2] != ' ':
+                self.state = '{0} wins'.format(self.table_matrix[0][2])
+        
+        cell_list = [cell for row in self.table_matrix for cell in row]
+        if ' ' not in cell_list:
+            self.state = 'Draw'
         
     def get_random_move(self):
         while True: 
@@ -118,6 +102,7 @@ def main():
     game = Game()
     game.table_str = '_________'
     game.convert_to_matrix(game.table_str) #fill self.table_matrix
+
     game.print_table()
     
     while True:

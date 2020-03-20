@@ -1,11 +1,13 @@
 import random
 class Game:
     def __init__(self):
-        self.table_str = None
+        self.table_str = '_________'
         self.active = False
         self.table_matrix = None
         self.valid_move = False
         self.state = None
+        self.command = None
+        self.convert_to_matrix(self.table_str)
 
     def convert_to_matrix(self, table_str):
         first_row = [cell if cell != '_' else ' ' for cell in table_str[0:3]]
@@ -97,35 +99,107 @@ class Game:
             if valid_condition == True:
                 return move
                 break
+    
+    def make_player_move(self, player_move):
+        self.check_move(player_move)
+        if self.valid_move == True:
+            self.print_table()
+
+    def make_AI_move(self):
+        print('Making move level "easy"')
+        AI_move = self.get_random_move()
+        x, y = (AI_move[0], AI_move[2])
+        self.insert_move(x, y)
+        self.print_table()
+    
+    def check_command(self, command):
+        if command == 'start easy easy' : self.command = 'easy easy'
+        elif command == 'start easy user' : self.command = 'easy user'
+        elif command == 'start user easy' : self.command = 'user easy'
+        elif command == 'start user user' : self.command = 'user user'
+        elif command == 'exit' : self.command = 'exit'
+        else: print('Bad parameters!')
 
 def main():
-    game = Game()
-    game.table_str = '_________'
-    game.convert_to_matrix(game.table_str) #fill self.table_matrix
-
-    game.print_table()
     
-    while True:
-        while game.valid_move == False:
-            player_move = input('Enter the coordinates:')
-            game.check_move(player_move)
+    game = Game()
+    while game.command != 'exit' :
+
+        game= Game()
+        command = input('Input command:')
+        game.check_command(command)
+        
+        if game.command == 'exit': break
+
+        elif game.command == 'user user':
             game.print_table()
+            while True:
+                #player move
+                while game.valid_move == False:
+                    player_move = input('Enter the coordinates:')
+                    game.make_player_move(player_move)
+                game.valid_move = False
+                game.get_state() 
+                if game.state in ['X wins', 'O wins', 'Draw'] : break   
+
+                #player move
+                while game.valid_move == False:
+                    player_move = input('Enter the coordinates:')
+                    game.make_player_move(player_move)
+                game.valid_move = False
+                game.get_state() 
+                if game.state in ['X wins', 'O wins', 'Draw'] : break            
+
+        elif game.command == 'user easy':
+            game.print_table()
+            while True:
+                #player move
+                while game.valid_move == False:
+                    player_move = input('Enter the coordinates:')
+                    game.make_player_move(player_move)
+                game.valid_move = False
+                game.get_state() 
+                if game.state in ['X wins', 'O wins', 'Draw'] : break
+
+                #AI move (does not require input)
+                game.make_AI_move()
+                game.get_state()
+                if game.state in ['X wins', 'O wins', 'Draw'] : break
+
+            print(game.state)
+
+        elif game.command == 'easy user':
+            game.print_table()
+            while True:
+                #AI move (does not require input)
+                game.make_AI_move()
+                game.get_state()
+                if game.state in ['X wins', 'O wins', 'Draw'] : break
+
+                #player move
+                while game.valid_move == False:
+                    player_move = input('Enter the coordinates:')
+                    game.make_player_move(player_move)
+                game.valid_move = False
+                game.get_state() 
+                if game.state in ['X wins', 'O wins', 'Draw'] : break
+
+            print(game.state)
+
+        elif game.command == 'easy easy':
+            game.print_table()
+            while True:
+                #AI move 1 (does not require input)
+                game.make_AI_move()
+                game.get_state()
+                if game.state in ['X wins', 'O wins', 'Draw'] : break
+
+                #AI move 2 (does not require input)
+                game.make_AI_move()
+                game.get_state()
+                if game.state in ['X wins', 'O wins', 'Draw'] : break
             
-        game.get_state() 
-        if game.state in ['X wins', 'O wins', 'Draw'] : break
-
-        #AI move
-        print('Making move level "easy"')
-        AI_move = game.get_random_move()
-        x, y = (AI_move[0], AI_move[2])
-        game.insert_move(x, y)
-        game.print_table()
-
-        game.get_state()
-        if game.state in ['X wins', 'O wins', 'Draw'] : break
-        game.valid_move = False
-
-    print(game.state)
+            print(game.state)
 
 if __name__ == "__main__":
     main()
